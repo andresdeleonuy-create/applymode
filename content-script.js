@@ -195,10 +195,15 @@
 
     ensureStyle();
     const inputs = getCandidateInputs();
-    // Cada candidato recibe un índice estable en el DOM: si el chat decide
+    // Cada candidato recibe un índice estable en el DOM: si el panel decide
     // después cómo llenar uno, necesita una forma de volver a encontrarlo
-    // (no se pueden pasar referencias de elementos entre content script y panel).
+    // (no se pueden pasar referencias de elementos entre content script y
+    // panel). Guardamos también name/id/tag: si la página reordena o
+    // re-renderiza el formulario (apps React) y el índice termina
+    // apuntando a otro campo, esta huella permite detectarlo y abortar en
+    // vez de escribir en el campo equivocado.
     inputs.forEach((el, i) => el.setAttribute('data-autofilluy-idx', String(i)));
+    const fingerprintOf = (el) => `${el.tagName}|${el.name || ''}|${el.id || ''}`;
     const used = new Set();
     const filled = [];
     // Campo Tipo A que reconocemos con confianza, pero el dato no está
@@ -229,7 +234,7 @@
         }
       } else {
         used.add(best);
-        missingData.push({ idx: Number(best.getAttribute('data-autofilluy-idx')), label: def.label, key });
+        missingData.push({ idx: Number(best.getAttribute('data-autofilluy-idx')), label: def.label, key, fingerprint: fingerprintOf(best) });
       }
     }
 
@@ -240,6 +245,7 @@
         label: (getLabelText(el).trim() || el.placeholder || el.name || el.id || '').slice(0, 120),
         tag: el.tagName,
         type: el.type || null,
+        fingerprint: fingerprintOf(el),
       }))
       .filter((c) => c.label)
       .slice(0, 20);

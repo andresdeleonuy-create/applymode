@@ -362,13 +362,39 @@ async function insertAnswer(field, value, card) {
   if (!value || !value.trim()) return;
   const tab = await getActiveTab();
   if (!tab || !tab.id) return;
-  await chrome.storage.local.set({ chatAnswers: [{ idx: field.idx, value }] });
-  await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['apply-answer.js'] });
-  card.innerHTML = '';
-  const done = document.createElement('span');
-  done.className = 'q-done';
-  done.textContent = '✓ Insertado';
-  card.appendChild(done);
+
+  await chrome.storage.local.set({ chatAnswers: [{ idx: field.idx, value, fingerprint: field.fingerprint || null }] });
+
+  const result = await new Promise((resolve) => {
+    const timeout = setTimeout(() => resolve(null), 4000);
+    chrome.runtime.onMessage.addListener(function onApplied(msg) {
+      if (!msg || msg.type !== 'autofillUY:applyAnswers') return;
+      clearTimeout(timeout);
+      chrome.runtime.onMessage.removeListener(onApplied);
+      resolve(msg);
+    });
+    chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['apply-answer.js'] }).catch(() => resolve(null));
+  });
+
+  if (result && result.appliedIdx.includes(field.idx)) {
+    card.innerHTML = '';
+    const done = document.createElement('span');
+    done.className = 'q-done';
+    done.textContent = '✓ Insertado';
+    card.appendChild(done);
+  } else if (result && result.mismatchedIdx.includes(field.idx)) {
+    const warn = document.createElement('p');
+    warn.className = 'hint';
+    warn.style.color = '#ff8a8a';
+    warn.textContent = '⚠️ La página cambió y no pude confirmar que sea el campo correcto — no escribí nada. Completalo a mano en la página.';
+    card.appendChild(warn);
+  } else {
+    const warn = document.createElement('p');
+    warn.className = 'hint';
+    warn.style.color = '#ff8a8a';
+    warn.textContent = '⚠️ No pude confirmar que se haya completado. Revisá la página.';
+    card.appendChild(warn);
+  }
 }
 
 async function generateAnswer(field) {

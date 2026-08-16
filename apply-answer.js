@@ -48,20 +48,34 @@
     return true;
   }
 
+  function fingerprintOf(el) {
+    return `${el.tagName}|${el.name || ''}|${el.id || ''}`;
+  }
+
   async function run() {
     const { chatAnswers } = await chrome.storage.local.get(['chatAnswers']);
     ensureStyle();
     const appliedIdx = [];
-    (chatAnswers || []).forEach(({ idx, value }) => {
+    const mismatchedIdx = [];
+    (chatAnswers || []).forEach(({ idx, value, fingerprint }) => {
       const el = document.querySelector(`[data-autofilluy-idx="${idx}"]`);
       if (!el || !value) return;
+      // La página pudo haber re-renderizado el formulario (apps React) y
+      // que el índice haya quedado apuntando a OTRO campo. Antes de
+      // escribir nada, confirmamos que sigue siendo el mismo campo que
+      // detectamos — si no, abortamos: mejor no completar nada a
+      // completar el campo equivocado.
+      if (fingerprint && fingerprintOf(el) !== fingerprint) {
+        mismatchedIdx.push(idx);
+        return;
+      }
       const ok = el.tagName === 'SELECT' ? setSelectValue(el, value) : (setNativeValue(el, value), true);
       if (ok) {
         highlight(el);
         appliedIdx.push(idx);
       }
     });
-    chrome.runtime.sendMessage({ type: 'autofillUY:applyAnswers', appliedIdx });
+    chrome.runtime.sendMessage({ type: 'autofillUY:applyAnswers', appliedIdx, mismatchedIdx });
   }
 
   run();
