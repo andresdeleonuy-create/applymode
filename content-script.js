@@ -179,7 +179,9 @@
     const { activeCareerModeId } = await chrome.storage.local.get(['activeCareerModeId']);
     const userProfile = state.userProfile || {};
     const careerModes = state.careerModes || [];
-    const mode = careerModes.find((m) => m.id === activeCareerModeId) || careerModes[0] || {};
+    // Si no se eligió perfil a propósito (activeCareerModeId es null), no
+    // usamos ninguno por default — solo se rellena con los datos generales.
+    const mode = activeCareerModeId ? careerModes.find((m) => m.id === activeCareerModeId) || {} : {};
     const nombreCompleto = [userProfile.nombre, userProfile.apellido].filter(Boolean).join(' ');
     return { ...userProfile, ...mode, nombreCompleto };
   }

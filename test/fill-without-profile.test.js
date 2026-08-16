@@ -1,6 +1,6 @@
-// node test/bare-name-and-low-match.test.js
-// Reproduce el reporte: (1) un campo "Name" a secas no se llenaba solo,
-// (2) con match bajo (2%) igual se forzaba un perfil como activo.
+// node test/fill-without-profile.test.js
+// Reproduce el pedido: poder rellenar solo con datos generales, sin elegir
+// (ni forzar) ningún Career Mode.
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
@@ -14,25 +14,23 @@ function assert(cond, msg) {
 }
 
 const store = {
-  userProfile: { nombre: 'Andrés', apellido: 'de León', email: 'andresdeleonuy@gmail.com', pais: 'Uruguay' },
+  userProfile: { nombre: 'Andrés', apellido: 'de León', email: 'andresdeleonuy@gmail.com', telefono: '099123456' },
   careerModes: [
-    { id: 'video', modeName: 'Video Editor', targetRoles: ['Video Editor'], skills: ['Premiere Pro', 'CapCut', 'Reels'], descripcionProfesional: '', experiencia: '', cartaPresentacion: '', pretensionSalarial: '' },
-    { id: 'cm', modeName: 'Community Manager', targetRoles: ['Community Manager'], skills: ['Social Media', 'Copywriting'], descripcionProfesional: '', experiencia: '', cartaPresentacion: '', pretensionSalarial: '' },
+    { id: 'video', modeName: 'Video Editor', targetRoles: ['Video Editor'], skills: ['Premiere Pro'], descripcionProfesional: 'Editor de video.', experiencia: '', cartaPresentacion: '', pretensionSalarial: '' },
   ],
+  activeCareerModeId: 'video', // valor viejo en storage, de un fill anterior — no debería usarse si ahora no elegimos ninguno
   geminiApiKey: 'FAKE_KEY',
 };
 function makeChromeStorage() {
   return { local: { get: () => Promise.resolve({ ...store }), set: (obj) => { Object.assign(store, obj); return Promise.resolve(); } } };
 }
 
-// La misma forma que "Name" a secas + "Company name" señuelo, para confirmar
-// que no empieza a confundirlas.
 const pageHtml = `<!DOCTYPE html><html><head><title>Senior Graphic Designer - Willow</title></head><body>
 <h1>Senior Graphic Designer</h1>
-<div class="job-description"><p>We are looking for a Senior Graphic Designer to join our Design &amp; Creatives team, remote across Latin America.</p></div>
+<div class="job-description"><p>We are looking for a Senior Graphic Designer to join our Design team.</p></div>
 <label>Name*</label><input id="name" name="name" type="text" />
-<label>Company name</label><input id="company" name="company_name" type="text" />
 <label>Email*</label><input id="email" name="email" type="email" />
+<label for="titulo">Desired role</label><input id="titulo" name="titulo" type="text" />
 </body></html>`;
 const pageDom = new JSDOM(pageHtml, { url: 'https://jobs.example.com/apply', runScripts: 'outside-only' });
 const pageWindow = pageDom.window;
@@ -77,24 +75,18 @@ panelDom.window.addEventListener('load', async () => {
   document.getElementById('analyzeBtn').click();
   await new Promise((r) => setTimeout(r, 100));
 
-  const cards = document.querySelectorAll('.match-card');
-  console.log('scores:', Array.from(cards).map((c) => c.querySelector('.match-card-score').textContent));
-  assert(!Array.from(cards).some((c) => c.className.includes('active')), 'con match bajo, NINGÚN perfil queda marcado como activo/en uso');
-  assert(document.getElementById('fillSection').hidden === false, 'la sección de rellenar sigue visible aunque no haya match (se puede rellenar sin perfil)');
-  assert(document.getElementById('fillBtn').textContent.includes('sin perfil'), 'el botón deja claro que rellenaría sin perfil si no elegís uno');
-  assert(document.querySelector('#matchSection h2').textContent.includes('elegí uno'), 'el título avisa que no hay match claro');
+  assert(document.getElementById('fillSection').hidden === false, 'el botón de rellenar está visible aunque no haya match');
+  assert(document.getElementById('fillBtn').textContent.includes('sin perfil'), 'el botón avisa que va a rellenar sin perfil');
+  assert(!document.querySelectorAll('.match-card').length || !Array.from(document.querySelectorAll('.match-card')).some((c) => c.className.includes('active')), 'no hay ningún perfil marcado activo');
 
-  // Elegimos uno a mano, como pediría el flujo real.
-  const useBtn = Array.from(cards[0].querySelectorAll('button')).find((b) => b.textContent === 'Usar este perfil');
-  useBtn.click();
   document.getElementById('fillBtn').click();
   await new Promise((r) => setTimeout(r, 150));
 
-  assert(pageWindow.document.getElementById('name').value !== '', '"Name" a secas SÍ se completa solo una vez elegido el perfil');
-  assert(pageWindow.document.getElementById('name').value.includes('Andrés'), 'y con el valor correcto (nombre completo)');
-  assert(pageWindow.document.getElementById('company').value === '', '"Company name" (señuelo) sigue sin tocarse');
-  assert(pageWindow.document.getElementById('email').value === 'andresdeleonuy@gmail.com', 'email sigue andando bien');
+  assert(pageWindow.document.getElementById('name').value.includes('Andrés'), 'nombre completo se rellena solo con datos generales');
+  assert(pageWindow.document.getElementById('email').value === 'andresdeleonuy@gmail.com', 'email se rellena');
+  assert(pageWindow.document.getElementById('titulo').value === '', 'el campo específico de perfil ("Desired role") queda SIN tocar, no usa el activeCareerModeId viejo de storage');
+  assert(store.activeCareerModeId === null, 'storage queda con activeCareerModeId en null, no se filtra el valor viejo');
 
-  console.log('\nbare-name-and-low-match.test.js: todo OK');
+  console.log('\nfill-without-profile.test.js: todo OK');
   process.exit(0);
 });

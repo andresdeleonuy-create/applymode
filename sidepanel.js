@@ -84,7 +84,13 @@ function runMatching() {
   matchHeading.textContent = confident ? 'Perfil recomendado' : 'Ningún perfil coincide claramente — elegí uno';
 
   matchSection.hidden = false;
-  fillSection.hidden = !activeModeId;
+  fillSection.hidden = false;
+  updateFillButtonLabel();
+}
+
+function updateFillButtonLabel() {
+  const mode = activeMode();
+  fillBtn.textContent = mode ? `Rellenar con perfil: ${mode.modeName}` : 'Rellenar con mis datos básicos (sin perfil)';
 }
 
 function renderMatches() {
@@ -124,7 +130,7 @@ function renderMatches() {
       btn.addEventListener('click', () => {
         activeModeId = r.id;
         renderMatches();
-        fillSection.hidden = false;
+        updateFillButtonLabel();
       });
     }
     actions.appendChild(btn);
@@ -132,20 +138,30 @@ function renderMatches() {
 
     matchList.appendChild(card);
   });
+
+  if (activeModeId) {
+    matchList.appendChild(makeButton('No usar ningún perfil — solo mis datos básicos', () => {
+      activeModeId = null;
+      renderMatches();
+      updateFillButtonLabel();
+    }));
+  }
 }
 
 // ---- Paso 2: rellenar Tipo A, listar Tipo B ----
 
 fillBtn.addEventListener('click', async () => {
   const mode = activeMode();
-  if (!mode) return;
   fillStatus.textContent = 'Buscando campos...';
   questionsSection.hidden = true;
   questionsList.innerHTML = '';
   missingSection.hidden = true;
   missingList.innerHTML = '';
 
-  await chrome.storage.local.set({ activeCareerModeId: mode.id });
+  // null explícito, no undefined: si no hay perfil elegido, content-script
+  // no debe usar ningún perfil por default (antes usaba el primero sin que
+  // el usuario lo pidiera).
+  await chrome.storage.local.set({ activeCareerModeId: mode ? mode.id : null });
   const tab = await getActiveTab();
   if (!tab || !tab.id) {
     fillStatus.textContent = 'No se encontró la pestaña activa.';
