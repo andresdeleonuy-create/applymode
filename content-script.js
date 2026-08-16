@@ -84,6 +84,16 @@
     return text;
   }
 
+  // Para sinónimos genéricos y ambiguos ("name" solo, sin "full") — cuentan
+  // fuerte, pero solo si son TODO el contenido del campo (name/id/label),
+  // no si aparecen dentro de algo más largo ("Company name", "Username").
+  function exactSynonymScore(input, def) {
+    if (!def.exactSynonyms || !def.exactSynonyms.length) return 0;
+    const candidates = [normIdentifier(input.name || ''), normIdentifier(input.id || ''), norm(getLabelText(input))];
+    const matches = candidates.some((c) => c && def.exactSynonyms.some((syn) => c === norm(syn)));
+    return matches ? 3 : 0;
+  }
+
   function scoreField(input, def) {
     let score = 0;
     const autocomplete = norm(input.getAttribute('autocomplete') || '');
@@ -96,6 +106,7 @@
     if (hasSynonym(nameId, def.synonyms)) score += 2;
     if (hasSynonym(placeholder, def.synonyms)) score += 1;
     score += labelMatchScore(label, def.synonyms);
+    score += exactSynonymScore(input, def);
     return score;
   }
 

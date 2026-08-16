@@ -69,11 +69,20 @@ document.getElementById('analyzeBtn').addEventListener('click', async () => {
   }
 });
 
+// Por debajo de esto, ningún perfil coincide de verdad con la oferta — mejor
+// no asumir ninguno que forzar uno que no tiene nada que ver (ej: 2% match).
+const MIN_CONFIDENT_MATCH = 15;
+
 function runMatching() {
   const result = window.AUTOFILL_UY_MATCHER.recommendCareerMode(jobSignals, careerModes);
   ranked = result.ranked;
-  activeModeId = result.recommended ? result.recommended.id : careerModes[0]?.id || null;
+  const confident = result.recommended && result.recommended.score >= MIN_CONFIDENT_MATCH;
+  activeModeId = confident ? result.recommended.id : null;
   renderMatches();
+
+  const matchHeading = document.querySelector('#matchSection h2');
+  matchHeading.textContent = confident ? 'Perfil recomendado' : 'Ningún perfil coincide claramente — elegí uno';
+
   matchSection.hidden = false;
   fillSection.hidden = !activeModeId;
 }
