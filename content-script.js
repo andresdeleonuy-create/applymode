@@ -84,6 +84,24 @@
     return text;
   }
 
+  // Campos como "What is your salary expectation in USD/month?" solo
+  // aceptan un número — si les mandamos el texto libre de Pretensión
+  // salarial ("A convenir", "USD 800-1000") el propio sitio lo rechaza.
+  function looksNumericOnly(input) {
+    if (input.type === 'number') return true;
+    const inputmode = (input.getAttribute('inputmode') || '').toLowerCase();
+    if (inputmode === 'numeric' || inputmode === 'decimal') return true;
+    const label = norm(getLabelText(input) + ' ' + (input.placeholder || ''));
+    return /\busd\b/.test(label) && /(month|mes|ano|year|anual|annual|mensual)/.test(label);
+  }
+
+  // Saca el primer número de un texto ("USD 800-1000" -> "800"). Si no hay
+  // ninguno ("A convenir"), devuelve null — mejor eso que inventar un valor.
+  function extractNumber(str) {
+    const match = (str || '').toString().match(/\d+([.,]\d+)?/);
+    return match ? match[0].replace(',', '.') : null;
+  }
+
   // Para sinónimos genéricos y ambiguos ("name" solo, sin "full") — cuentan
   // fuerte, pero solo si son TODO el contenido del campo (name/id/label),
   // no si aparecen dentro de algo más largo ("Company name", "Username").
@@ -283,9 +301,13 @@
       }
       if (!best || bestScore < CONFIDENCE_THRESHOLD) continue;
 
-      const value = data[key];
+      let value = data[key];
       const hasValue = def.inputKind === 'file' ? !!(value && value.base64) : !!(value && value.toString().trim());
       if (hasValue) {
+        if (key === 'pretensionSalarial' && looksNumericOnly(best)) {
+          const num = extractNumber(value);
+          if (num) value = num;
+        }
         const ok = fillField(best, def, value);
         if (ok) {
           used.add(best);
