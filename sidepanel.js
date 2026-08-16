@@ -206,6 +206,20 @@ function renderMissingCard(field) {
   label.textContent = field.label;
   card.appendChild(label);
 
+  if (field.key === 'cv') {
+    const hint = document.createElement('p');
+    hint.className = 'hint';
+    hint.textContent = 'Este perfil todavía no tiene un CV generado/subido. Andá a Opciones para armarlo — de ahí en más se adjunta solo.';
+    card.appendChild(hint);
+    const actions = document.createElement('div');
+    actions.className = 'q-actions';
+    actions.appendChild(makeButton('Ir a Opciones', () => chrome.runtime.openOptionsPage()));
+    actions.appendChild(makeButton('Saltar', () => card.remove()));
+    card.appendChild(actions);
+    missingList.appendChild(card);
+    return;
+  }
+
   const input = document.createElement('input');
   input.type = 'text';
   input.className = 'q-answer';

@@ -111,7 +111,10 @@
   }
 
   function getCandidateInputs() {
-    const skipTypes = ['hidden', 'submit', 'button', 'checkbox', 'radio', 'file', 'password', 'image', 'reset'];
+    // "file" no está en la lista de tipos a saltear: los inputs de subir CV
+    // sí son candidatos (para inputKind:'file'), solo que se filtran para
+    // no matchear contra ningún otro tipo de campo más abajo.
+    const skipTypes = ['hidden', 'submit', 'button', 'checkbox', 'radio', 'password', 'image', 'reset'];
     return Array.from(document.querySelectorAll('input, textarea, select')).filter((el) => {
       if (el.tagName === 'INPUT' && skipTypes.includes(el.type)) return false;
       if (el.disabled || el.readOnly) return false;
@@ -158,9 +161,35 @@
     return true;
   }
 
+  // Trunco de DOM legítimo (lo usan las librerías de testing) para poner un
+  // archivo en un <input type="file"> por script — no requiere ningún
+  // permiso especial de Chrome.
+  function setFileValue(input, cv) {
+    try {
+      const byteChars = atob(cv.base64);
+      const bytes = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) bytes[i] = byteChars.charCodeAt(i);
+      const file = new File([bytes], cv.filename || 'cv.pdf', { type: cv.mimeType || 'application/pdf' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function fillField(input, def, value) {
     input.focus();
-    if (input.tagName === 'SELECT') {
+    if (def.inputKind === 'file') {
+      const ok = setFileValue(input, value);
+      if (!ok) {
+        input.blur();
+        return false;
+      }
+    } else if (input.tagName === 'SELECT') {
       const ok = setSelectValue(input, value);
       if (!ok) {
         input.blur();
@@ -217,6 +246,8 @@
         if (used.has(input)) continue;
         if (def.inputKind === 'select' && input.tagName !== 'SELECT') continue;
         if (def.inputKind !== 'select' && input.tagName === 'SELECT') continue;
+        if (def.inputKind === 'file' && input.type !== 'file') continue;
+        if (def.inputKind !== 'file' && input.type === 'file') continue;
         const s = scoreField(input, def);
         if (s > bestScore) {
           bestScore = s;
@@ -226,7 +257,8 @@
       if (!best || bestScore < CONFIDENCE_THRESHOLD) continue;
 
       const value = data[key];
-      if (value && value.toString().trim()) {
+      const hasValue = def.inputKind === 'file' ? !!(value && value.base64) : !!(value && value.toString().trim());
+      if (hasValue) {
         const ok = fillField(best, def, value);
         if (ok) {
           used.add(best);

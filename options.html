@@ -65,6 +65,21 @@
           <input type="text" id="perfilSkills" placeholder="ej: Social Media, Copywriting, Meta Ads, Community Management" />
         </label>
         <div class="grid" id="perfilFields"></div>
+
+        <div class="cv-box">
+          <span class="cv-box-label">CV para este perfil</span>
+          <p id="cvStatus" class="hint">Sin CV cargado todavía.</p>
+          <div class="import-row">
+            <button id="generateCvBtn" class="secondary" type="button">Generar CV</button>
+            <input type="file" id="cvUploadFile" accept="application/pdf" />
+            <button id="uploadCvBtn" class="secondary" type="button">Subir PDF generado</button>
+          </div>
+          <p class="hint">
+            "Generar CV" abre una pestaña con un CV armado a partir de los datos de este perfil — lo imprimís/guardás
+            como PDF desde ahí, y después lo subís acá con "Subir PDF generado" para que quede adjunto (se guarda solo).
+          </p>
+        </div>
+
         <button id="deletePerfilBtn" class="danger">Eliminar este perfil</button>
       </div>
     </section>

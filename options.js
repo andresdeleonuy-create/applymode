@@ -2,7 +2,9 @@ const { FIELD_CATALOG, DEPARTAMENTOS, validarCedulaUY, limpiarCedula } = window.
 
 const catalogEntries = Object.entries(FIELD_CATALOG);
 const generalEntries = catalogEntries.filter(([, d]) => d.group === 'general' && !d.derived);
-const perfilEntries = catalogEntries.filter(([, d]) => d.group === 'perfil');
+// "cv" (inputKind:'file') tiene su propia UI dedicada más abajo (generar +
+// subir PDF), no un <input type="text"> genérico como el resto.
+const perfilEntries = catalogEntries.filter(([, d]) => d.group === 'perfil' && d.inputKind !== 'file');
 
 let userProfile = {};
 let careerModes = [];
@@ -101,8 +103,14 @@ function selectMode(id) {
       const el = document.getElementById('perfil-' + key);
       if (el) el.value = mode[key] || '';
     });
+    updateCvStatus(mode);
   }
   renderTabs();
+}
+
+function updateCvStatus(mode) {
+  const cvStatus = document.getElementById('cvStatus');
+  cvStatus.textContent = mode.cv ? `CV cargado: ${mode.cv.filename} ✓` : 'Sin CV cargado todavía.';
 }
 
 function commitCurrentModeForm() {
@@ -131,6 +139,37 @@ document.getElementById('deletePerfilBtn').addEventListener('click', () => {
   }
   careerModes = careerModes.filter((m) => m.id !== activeModeId);
   selectMode(careerModes[0].id);
+});
+
+document.getElementById('generateCvBtn').addEventListener('click', async () => {
+  commitCurrentModeForm();
+  const mode = careerModes.find((m) => m.id === activeModeId);
+  if (!mode) return;
+  const cvPreviewData = {
+    nombre: userProfile.nombre, apellido: userProfile.apellido, email: userProfile.email,
+    telefono: userProfile.telefono, ciudad: userProfile.ciudad, departamento: userProfile.departamento,
+    pais: userProfile.pais, linkedin: userProfile.linkedin, portfolio: userProfile.portfolio,
+    modeName: mode.modeName, targetRoles: mode.targetRoles, descripcionProfesional: mode.descripcionProfesional,
+    experiencia: mode.experiencia, skills: mode.skills,
+  };
+  await chrome.storage.local.set({ cvPreviewData });
+  chrome.tabs.create({ url: chrome.runtime.getURL('cv-template.html') });
+});
+
+document.getElementById('uploadCvBtn').addEventListener('click', async () => {
+  const cvStatus = document.getElementById('cvStatus');
+  const file = document.getElementById('cvUploadFile').files[0];
+  if (!file) {
+    cvStatus.textContent = 'Elegí el PDF que guardaste primero.';
+    return;
+  }
+  const mode = careerModes.find((m) => m.id === activeModeId);
+  if (!mode) return;
+
+  const base64 = await fileToBase64(file);
+  mode.cv = { base64, filename: file.name, mimeType: file.type || 'application/pdf' };
+  await window.AUTOFILL_UY_STORAGE.saveState({ userProfile, careerModes });
+  updateCvStatus(mode);
 });
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
