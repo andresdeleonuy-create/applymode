@@ -1,0 +1,11 @@
+{
+  "name": "applymode-tests",
+  "private": true,
+  "description": "Tests de desarrollo, no se empaquetan con la extensión.",
+  "devDependencies": {
+    "jsdom": "^25.0.0"
+  },
+  "scripts": {
+    "test": "node matcher.test.js && node evidence.test.js && node fill-e2e.test.js"
+  }
+}

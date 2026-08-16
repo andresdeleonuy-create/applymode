@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>ApplyMode — Tus datos</title>
+<link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Tus datos</h1>
+    <p class="hint">Esto se guarda solo en tu navegador (chrome.storage.local), no sale de tu máquina.</p>
+
+    <section>
+      <h2>Asistente IA (Gemini)</h2>
+      <p class="hint">
+        Opcional. Hace falta para el chat del panel lateral y para importar tus datos desde un CV. Sacá tu key
+        gratis en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a>,
+        sin tarjeta. Lo que uses de esto (campos sin resolver, tu CV) se envía a Google — el resto de la extensión
+        es 100% local.
+      </p>
+      <label class="field wide">
+        <span>Gemini API key</span>
+        <input type="password" id="geminiApiKey" placeholder="AIza..." autocomplete="off" />
+      </label>
+    </section>
+
+    <section>
+      <h2>Importar desde CV</h2>
+      <p class="hint">Subí tu CV en PDF y Gemini completa los campos de abajo por vos. Revisalos antes de guardar.</p>
+      <div class="import-row">
+        <input type="file" id="cvFile" accept="application/pdf" />
+        <button id="importCvBtn" class="secondary">Importar</button>
+      </div>
+      <p id="importStatus" class="hint"></p>
+    </section>
+
+    <section>
+      <h2>Datos generales</h2>
+      <p class="hint">Los mismos para cualquier postulación.</p>
+      <div class="grid" id="generalFields"></div>
+    </section>
+
+    <section>
+      <h2>Perfiles profesionales</h2>
+      <p class="hint">
+        Un perfil por identidad profesional (ej: "Diseño gráfico", "Community management"). El panel lateral compara
+        cada oferta contra estos perfiles y te recomienda cuál usar — para eso importan sobre todo los cargos y las
+        skills.
+      </p>
+
+      <div class="perfil-tabs" id="perfilTabs"></div>
+      <button id="addPerfilBtn" class="secondary">+ Nuevo perfil</button>
+
+      <div id="perfilForm" class="perfil-form" hidden>
+        <label class="field">
+          <span>Nombre del perfil</span>
+          <input type="text" id="perfilNombre" placeholder="ej: Diseño gráfico" />
+        </label>
+        <label class="field wide">
+          <span>Cargos objetivo (separados por coma)</span>
+          <input type="text" id="perfilTargetRoles" placeholder="ej: Community Manager, Social Media Manager" />
+        </label>
+        <label class="field wide">
+          <span>Skills (separadas por coma) — lo más importante para que te recomiende bien</span>
+          <input type="text" id="perfilSkills" placeholder="ej: Social Media, Copywriting, Meta Ads, Community Management" />
+        </label>
+        <div class="grid" id="perfilFields"></div>
+        <button id="deletePerfilBtn" class="danger">Eliminar este perfil</button>
+      </div>
+    </section>
+
+    <div class="save-bar">
+      <button id="saveBtn">Guardar</button>
+      <span id="saveStatus"></span>
+    </div>
+  </div>
+  <script src="lib/field-catalog.js"></script>
+  <script src="lib/gemini.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

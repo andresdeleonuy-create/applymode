@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Video Editor — Demo Co</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; color: #222; }
+  .badge { display: inline-block; background: #efe; color: #393; padding: 3px 10px; border-radius: 999px; font-size: 12px; margin-bottom: 10px; }
+  h1 { margin-bottom: 4px; }
+  .meta { color: #666; margin-bottom: 24px; }
+  .job-description { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 20px; margin-bottom: 32px; }
+  form label { display: block; margin-top: 16px; font-size: 13px; color: #444; }
+  form input, form textarea { width: 100%; padding: 9px; margin-top: 4px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font: inherit; }
+  form textarea { min-height: 70px; }
+  button[type="submit"] { margin-top: 20px; padding: 10px 20px; background: #333; color: #fff; border: none; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <span class="badge">Demo Co — Remote</span>
+  <h1>Video Editor</h1>
+  <p class="meta">Contract · Remote · Latin America</p>
+
+  <div class="job-description">
+    <p>Video Editor — Create short-form ads for Meta and TikTok. Experience with Premiere and AI tools preferred.
+    You'll work on fast-turnaround edits, reels, and generative-AI-assisted video for performance marketing
+    campaigns.</p>
+    <p>Requirements: Premiere Pro, short-form editing, comfortable working with tight deadlines.</p>
+  </div>
+
+  <form onsubmit="return false;">
+    <label for="fname">Full name</label>
+    <input id="fname" name="name" type="text" />
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" />
+
+    <label for="phone">Phone</label>
+    <input id="phone" name="phone" type="text" />
+
+    <label for="portfolio">Portfolio</label>
+    <input id="portfolio" name="portfolio" type="text" />
+
+    <label for="describe">Describe your experience with short-form video editing.</label>
+    <textarea id="describe" name="describe"></textarea>
+
+    <label for="team">Have you managed a video team of more than 10 people?</label>
+    <textarea id="team" name="team"></textarea>
+
+    <button type="submit">Submit application</button>
+  </form>
+</body>
+</html>

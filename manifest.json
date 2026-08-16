@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "ApplyMode",
+  "version": "0.3.0",
+  "description": "Detecta qué identidad profesional conviene usar para cada oferta y completa la postulación con información verificable tuya. Pensado para portales de empleo uruguayos y latinoamericanos.",
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
+  "host_permissions": ["https://generativelanguage.googleapis.com/*", "http://*/*", "https://*/*", "file:///*"],
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>ApplyMode</title>
+<link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <header>
+    <h1>ApplyMode</h1>
+    <span id="optionsLink">Editar mis datos</span>
+  </header>
+
+  <section class="job-section">
+    <button id="analyzeBtn">Analizar oferta de esta página</button>
+    <p id="jobStatus" class="hint"></p>
+  </section>
+
+  <section id="matchSection" hidden>
+    <h2>Perfil recomendado</h2>
+    <div id="matchList"></div>
+  </section>
+
+  <section id="fillSection" hidden>
+    <button id="fillBtn">Rellenar con este perfil</button>
+    <p id="fillStatus" class="hint"></p>
+  </section>
+
+  <section id="missingSection" hidden>
+    <h2>Te falta cargar esto</h2>
+    <p class="hint">Campos que reconocí pero no tenés en tu perfil. Podés completarlos acá para esta postulación, o cargarlos en Opciones para no repetirlo.</p>
+    <div id="missingList"></div>
+  </section>
+
+  <section id="questionsSection" hidden>
+    <h2>Preguntas abiertas</h2>
+    <div id="questionsList"></div>
+  </section>
+
+  <script src="lib/gemini.js"></script>
+  <script src="lib/matcher.js"></script>
+  <script src="lib/storage.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

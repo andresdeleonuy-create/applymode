@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Formulario de prueba</title>
+<style>
+  body { font-family: sans-serif; max-width: 480px; margin: 40px auto; }
+  label { display: block; margin-top: 14px; font-size: 13px; color: #444; }
+  input, textarea, select { width: 100%; padding: 8px; box-sizing: border-box; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <h2>Postulación - patrones típicos</h2>
+
+  <label for="fname">Nombre</label>
+  <input id="fname" name="fname" type="text" />
+
+  <label for="lname">Apellido</label>
+  <input id="lname" name="lname" type="text" />
+
+  <label>Correo electrónico
+    <input name="user_email" type="text" placeholder="tucorreo@ejemplo.com" />
+  </label>
+
+  <div class="label">Teléfono de contacto</div>
+  <input id="input_23" name="input_23" type="text" />
+
+  <div class="label">Cédula</div>
+  <input id="input_45" name="input_45" type="text" />
+
+  <label for="depto">Departamento de residencia</label>
+  <select id="depto" name="depto">
+    <option value="">Seleccionar</option>
+    <option value="MVD">Montevideo</option>
+    <option value="CAN">Canelones</option>
+    <option value="MAL">Maldonado</option>
+  </select>
+
+  <label for="resumen">Contanos sobre vos</label>
+  <textarea id="resumen" name="resumen"></textarea>
+
+  <label for="cover">Carta de presentación</label>
+  <textarea id="cover" name="cover"></textarea>
+
+  <label for="company">Nombre de la empresa (no soy yo, es la empresa donde trabajé)</label>
+  <input id="company" name="company" type="text" />
+
+  <label for="username">Usuario</label>
+  <input id="username" name="username" type="text" />
+</body>
+</html>

@@ -1,0 +1,111 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #111;
+  color: #eee;
+  font-family: system-ui, sans-serif;
+}
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 16px; margin: 0 0 4px; }
+.hint { color: #999; font-size: 12px; margin: 0 0 16px; }
+section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a2a;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #bbb;
+}
+.field.wide { grid-column: 1 / -1; }
+
+.import-row { display: flex; gap: 8px; align-items: center; }
+.import-row input[type="file"] { flex: 1; font-size: 12px; color: #ccc; }
+input, select, textarea {
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #eee;
+  padding: 8px;
+  font: inherit;
+  font-size: 13px;
+}
+textarea { min-height: 70px; resize: vertical; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #888;
+}
+.field small.error { color: #ff8a8a; }
+.field small.ok { color: #7fdba0; }
+
+.perfil-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.perfil-tab {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: #1b1b1b;
+  color: #ccc;
+  font-size: 12px;
+  cursor: pointer;
+}
+.perfil-tab.active {
+  background: #eee;
+  color: #111;
+  border-color: #eee;
+}
+
+button {
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  background: #eee;
+  color: #111;
+}
+button.secondary {
+  background: transparent;
+  color: #eee;
+  border: 1px solid #444;
+}
+button.danger {
+  background: transparent;
+  color: #ff8a8a;
+  border: 1px solid #542;
+  margin-top: 12px;
+}
+button:hover { opacity: 0.9; }
+
+.perfil-form { margin-top: 14px; }
+
+.save-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111;
+  border-top: 1px solid #2a2a2a;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+#saveStatus { font-size: 12px; color: #7fdba0; }
