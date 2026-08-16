@@ -75,7 +75,7 @@ panelDom.window.addEventListener('load', async () => {
   // Nos saltamos "Analizar oferta" (ya probado en fill-e2e.test.js) y vamos directo a rellenar.
   panelDom.window.eval("activeModeId = 'cm';");
   document.getElementById('fillBtn').click();
-  await new Promise((r) => setTimeout(r, 150));
+  await new Promise((r) => setTimeout(r, 500)); // content-script espera 350ms para re-chequear valores
 
   assert(document.querySelectorAll('#questionsList .q-card').length === 0, 'LinkedIn NO aparece en "Preguntas abiertas"');
   const missingCards = document.querySelectorAll('#missingList .q-card');

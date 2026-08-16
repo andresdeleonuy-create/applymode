@@ -88,7 +88,7 @@ panelDom.window.addEventListener('load', async () => {
   const useBtn = Array.from(cards[0].querySelectorAll('button')).find((b) => b.textContent === 'Usar este perfil');
   useBtn.click();
   document.getElementById('fillBtn').click();
-  await new Promise((r) => setTimeout(r, 150));
+  await new Promise((r) => setTimeout(r, 500)); // content-script espera 350ms para re-chequear valores
 
   assert(pageWindow.document.getElementById('name').value !== '', '"Name" a secas SÍ se completa solo una vez elegido el perfil');
   assert(pageWindow.document.getElementById('name').value.includes('Andrés'), 'y con el valor correcto (nombre completo)');

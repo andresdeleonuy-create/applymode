@@ -80,7 +80,7 @@ panelDom.window.addEventListener('load', async () => {
   assert(!document.querySelectorAll('.match-card').length || !Array.from(document.querySelectorAll('.match-card')).some((c) => c.className.includes('active')), 'no hay ningún perfil marcado activo');
 
   document.getElementById('fillBtn').click();
-  await new Promise((r) => setTimeout(r, 150));
+  await new Promise((r) => setTimeout(r, 500)); // content-script espera 350ms para re-chequear valores
 
   assert(pageWindow.document.getElementById('name').value.includes('Andrés'), 'nombre completo se rellena solo con datos generales');
   assert(pageWindow.document.getElementById('email').value === 'andresdeleonuy@gmail.com', 'email se rellena');

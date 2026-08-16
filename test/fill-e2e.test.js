@@ -121,7 +121,7 @@ panelDom.window.addEventListener('load', async () => {
   assert(matchCards[0].className.includes('active'), 'el recomendado queda marcado como activo');
 
   document.getElementById('fillBtn').click();
-  await new Promise((r) => setTimeout(r, 150));
+  await new Promise((r) => setTimeout(r, 500)); // content-script espera 350ms para re-chequear valores
   assert(pageWindow.document.getElementById('fname').value === 'Andrés de León', 'nombre completo correcto (no lo pisa el nombre del perfil)');
   assert(pageWindow.document.getElementById('email').value === 'andresdeleonuy@gmail.com', 'email correcto');
   assert(pageWindow.document.getElementById('phone').value === '099123456', 'teléfono correcto');

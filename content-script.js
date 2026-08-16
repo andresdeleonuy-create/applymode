@@ -261,6 +261,7 @@
     const fingerprintOf = (el) => `${el.tagName}|${el.name || ''}|${el.id || ''}`;
     const used = new Set();
     const filled = [];
+    const filledEntries = []; // { key, def, el } — para poder re-chequear después
     // Campo Tipo A que reconocemos con confianza, pero el dato no está
     // cargado en el perfil — no es una pregunta abierta, así que no va a la IA.
     const missingData = [];
@@ -289,12 +290,27 @@
         if (ok) {
           used.add(best);
           filled.push(key);
+          filledEntries.push({ key, def, el: best });
         }
       } else {
         used.add(best);
         missingData.push({ idx: Number(best.getAttribute('data-autofilluy-idx')), label: def.label, key, fingerprint: fingerprintOf(best) });
       }
     }
+
+    // Verificación tardía: algunos sitios validan el valor en su propio
+    // onBlur/onChange y lo limpian si no les cierra (ej: un campo que solo
+    // acepta números y borra cualquier otra cosa) — sin este chequeo lo
+    // dábamos por completado aunque el sitio lo haya rechazado en silencio.
+    await new Promise((r) => setTimeout(r, 350));
+    filledEntries.forEach(({ key, def, el }) => {
+      const stillHasValue = def.inputKind === 'file' ? el.files && el.files.length > 0 : (el.value || '').toString().trim() !== '';
+      if (!stillHasValue) {
+        used.delete(el);
+        const i = filled.indexOf(key);
+        if (i !== -1) filled.splice(i, 1);
+      }
+    });
 
     const unresolved = inputs
       .filter((el) => !used.has(el))

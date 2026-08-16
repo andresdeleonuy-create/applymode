@@ -48,10 +48,11 @@ window.eval(read('lib/storage.js'));
 window.eval(read('content-script.js'));
 
 setTimeout(() => {
+  // content-script espera 350ms internamente para re-chequear valores.
   assert(document.getElementById('resume').files.length === 0, 'sin CV cargado, el input de resume queda vacío (no rompe nada)');
   assert(received.missingData.some((m) => m.key === 'cv'), 'el campo "Resume" se detecta como cv y cae en "Te falta cargar esto"');
   assert(!received.unresolved.some((u) => u.label.toLowerCase().includes('resume')), 'NO aparece como pregunta abierta de IA (no tiene sentido pedirle a Gemini un archivo)');
 
   console.log('\ncv-autofill.test.js: todo OK (el adjuntado real con DataTransfer requiere probarse en Chrome, jsdom no lo soporta)');
   process.exit(0);
-}, 30);
+}, 500);
