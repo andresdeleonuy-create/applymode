@@ -271,7 +271,7 @@ document.getElementById('importCvBtn').addEventListener('click', async () => {
 
     importStatus.textContent = `Importé ${count} campo(s). Revisalos y guardá.`;
   } catch (err) {
-    importStatus.textContent = 'Error importando: ' + err.message;
+    importStatus.textContent = err.friendlyMessage || 'Error importando: ' + err.message;
   }
 });
 

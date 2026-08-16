@@ -264,7 +264,7 @@ function renderQuestionCard(field) {
       body.innerHTML = '';
       const p = document.createElement('p');
       p.className = 'hint';
-      p.textContent = 'Error: ' + err.message;
+      p.textContent = err.friendlyMessage || 'Error: ' + err.message;
       body.appendChild(p);
     }
     genBtn.remove();
