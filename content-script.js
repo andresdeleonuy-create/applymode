@@ -161,9 +161,29 @@
     return true;
   }
 
+  // Muchos widgets de "subir CV" (react-dropzone y similares) no escuchan
+  // el "change" del <input> — escuchan eventos de arrastrar-y-soltar sobre
+  // el contenedor visible ("o arrastrá y soltá acá"). Disparamos ambos
+  // caminos, y subimos unos niveles en el DOM por si el listener real
+  // está en un contenedor padre, no en el input mismo.
+  function fireDropEvents(el, dataTransfer) {
+    ['dragenter', 'dragover', 'drop'].forEach((type) => {
+      let evt;
+      try {
+        evt = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });
+      } catch (e) {
+        evt = new Event(type, { bubbles: true, cancelable: true });
+        evt.dataTransfer = dataTransfer;
+      }
+      el.dispatchEvent(evt);
+    });
+  }
+
   // Trunco de DOM legítimo (lo usan las librerías de testing) para poner un
   // archivo en un <input type="file"> por script — no requiere ningún
-  // permiso especial de Chrome.
+  // permiso especial de Chrome. No hay forma de que un evento disparado por
+  // script tenga isTrusted:true — si un sitio exige eso específicamente
+  // (poco común), no hay manera de automatizarlo desde ningún lado.
   function setFileValue(input, cv) {
     try {
       const byteChars = atob(cv.base64);
@@ -175,6 +195,12 @@
       input.files = dt.files;
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+
+      let target = input;
+      for (let i = 0; i < 4 && target; i++) {
+        fireDropEvents(target, dt);
+        target = target.parentElement;
+      }
       return true;
     } catch (e) {
       return false;
